@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ncu.usermatchserver.mapper.TagsMapper">
+
+    <resultMap id="BaseResultMap" type="com.ncu.usermatchserver.model.domain.Tags">
+            <id property="id" column="id" />
+            <result property="tagsName" column="tagsName" />
+            <result property="userId" column="userId" />
+            <result property="parent" column="parent" />
+            <result property="isParent" column="isParent" />
+            <result property="create_time" column="create_time" />
+            <result property="update_time" column="update_time" />
+            <result property="is_deleted" column="is_deleted" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,tagsName,userId,parent,isParent,create_time,
+        update_time,is_deleted
+    </sql>
+</mapper>

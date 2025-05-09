@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 
 @SpringBootTest
 public class UserServiceTest {
@@ -50,4 +52,14 @@ public class UserServiceTest {
         Assertions.assertEquals(-1, userService.register(userAccount, password, checkPassword));
     }
 
+    @Test
+    public void testSearchTeamUserByTags() {
+        List<String> tags = new ArrayList<>();
+        tags.add("java");
+        tags.add("C++");
+        Assertions.assertNotNull(userService.searchTeamUserByTags(tags));
+        tags.add("python");
+        tags.add("男");
+        Assertions.assertEquals(new ArrayList<>(), userService.searchTeamUserByTags(tags));
+    }
 }

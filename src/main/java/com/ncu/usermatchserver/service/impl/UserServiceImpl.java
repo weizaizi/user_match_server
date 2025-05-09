@@ -4,6 +4,8 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.crypto.digest.MD5;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.ncu.usermatchserver.common.ErrorCode;
 import com.ncu.usermatchserver.exception.BusinessException;
 import com.ncu.usermatchserver.mapper.UserMapper;
@@ -15,6 +17,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.ncu.usermatchserver.contant.UserConstant.USER_LOGIN_STATUS;
 
@@ -86,7 +91,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public User login(String userAccount, String password, HttpServletRequest request) {
+    public UserVO login(String userAccount, String password, HttpServletRequest request) {
         if (StringUtils.isAnyBlank(userAccount, password)) {
             throw new BusinessException(ErrorCode.NULL_ERROR);
         }
@@ -111,19 +116,33 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (!StringUtils.equals(md5.digestHex(password), user.getUserPassword())) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账户或密码错误");
         }
+        UserVO result = getSafeUser(user);
 
-        user.setUserPassword(null);
-        user.setIsDeleted(null);
-        user.setUpdateTime(null);
-
-        request.getSession().setAttribute(USER_LOGIN_STATUS, user);
-        return user;
+        request.getSession().setAttribute(USER_LOGIN_STATUS, result);
+        return result;
     }
 
     @Override
-    public UserVO getSafyUser(User user) {
+    public UserVO getSafeUser(User user) {
         return BeanUtil.toBean(user, UserVO.class);
     }
+
+    @Override
+    public List<UserVO> searchTeamUserByTags(List<String> tags) {
+        Gson gson = new Gson();
+        //拿到所有用户
+        List<User> list = this.list();
+        return list.stream().filter(user -> {
+            if (user == null) return false;
+            //用户的标签名称的集合
+            Set<String> tempTagsName = gson.fromJson(user.getTags(), new TypeToken<Set<String>>() {}.getType());
+            //如果用户不包含集合中的标签则不收集
+            for (String tag : tags) if (!tempTagsName.contains(tag)) return false;
+            return true;
+        }).map(this::getSafeUser).collect(Collectors.toList());
+    }
+
+
 }
 
 

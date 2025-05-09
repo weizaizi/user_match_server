@@ -64,7 +64,7 @@ public class UserController {
      */
 
     @PostMapping("/login")
-    public BaseResponse<User> login(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
+    public BaseResponse<UserVO> login(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
         if (request == null) {
             throw new BusinessException(ErrorCode.NULL_ERROR);
         }
@@ -76,7 +76,7 @@ public class UserController {
         String userAccount = userLoginRequest.getUserAccount();
         String password = userLoginRequest.getPassword();
 
-        User result = userService.login(userAccount, password, request);
+        UserVO result = userService.login(userAccount, password, request);
         return ResultUtils.success(result);
     }
 
@@ -101,7 +101,7 @@ public class UserController {
         }
 
         List<User> list = userService.list(userLambdaQueryWrapper);
-        List<UserVO> result = list.stream().map(user -> userService.getSafyUser(user)).collect(Collectors.toList());
+        List<UserVO> result = list.stream().map(user -> userService.getSafeUser(user)).collect(Collectors.toList());
         return ResultUtils.success(result);
     }
 
